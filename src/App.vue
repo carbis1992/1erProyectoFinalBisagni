@@ -1,23 +1,20 @@
 <template>
-    <!-- <registroUsuario />
-    <loginUsuario /> -->
-    <NavBar />
-    <listadoProductos />
+    <registroUsuario />
+    <!-- <loginUsuario /> -->
+    <!-- <listadoProductos /> -->
 </template>
 
 <script>
-// import registroUsuario from './components/registroUsuario.vue'
+import registroUsuario from './components/registroUsuario.vue'
 // import loginUsuario from './components/loginUsuario.vue'
-import NavBar from './components/NavBar.vue';
-import listadoProductos from './components/listadoProductos.vue'
+// import listadoProductos from './components/listadoProductos.vue'
 
 export default {
   name: 'App',
   components: {
-    // registroUsuario,
+    registroUsuario,
     // loginUsuario,
-    NavBar,
-    listadoProductos,
+    // listadoProductos,
   }
 }
 </script>

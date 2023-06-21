@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/require-valid-default-prop -->
 <template>
   <div v-if="showSection">
     <div class="header-carrito">
@@ -24,11 +23,12 @@
           <th>Imagen</th>
           <th>Nombre</th>
           <th>Precio</th>
+          <th>Cantidad</th>
           <th>Acciones</th>
         </tr>
       </thead>
-      <tbody v-for="producto in carrito" :key="producto.id">
-        <tr>
+      <tbody>
+        <tr v-for="(producto, index) in carrito" :key="producto.id">
           <td>
             <img
               :src="producto.imagen"
@@ -38,6 +38,15 @@
           </td>
           <td>{{ producto.nombre }}</td>
           <td>{{ producto.precio }}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary" @click="restarCantidad(index)">
+              -
+            </button>
+            <span class="cantidad" v-if="producto && producto.cantidad">{{ producto.cantidad }}</span>
+            <button class="btn btn-sm btn-secondary" @click="sumarCantidad(index)">
+              +
+            </button>
+          </td>
           <td>
             <button class="btn btn-danger" @click="removeFromCart(producto)">
               <svg
@@ -57,11 +66,15 @@
         </tr>
       </tbody>
     </table>
+    <div class="total-carrito">Total Carrito: {{ calcularTotalCarrito() }}</div>
     <button type="button" class="btn btn-outline-success" @click="comprar">Comprar</button>
+    <div class="carrito-icono" v-if="cantidadProductos > 0">{{ cantidadProductos }}</div>
   </div>
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
   name: "carritoComponent",
   props: {
@@ -73,38 +86,127 @@ export default {
   data() {
     return {
       showSection: true,
+      carritoLocal: [],
     };
+  },
+  created() {
+    this.carritoLocal = [...this.carrito]; // Copia los productos al carrito local
+  },
+  computed: {
+    cantidadProductos() {
+      return this.carrito.reduce((total, producto) => total + producto.cantidad, 0);
+    },
   },
   methods: {
     removeFromCart(producto) {
-      this.$emit("remove-from-cart", producto);
+      const carritoCopia = [...this.carritoLocal];
+      const index = carritoCopia.findIndex((item) => item.id === producto.id);
+      if (index !== -1) {
+        carritoCopia.splice(index, 1);
+        this.carritoLocal = carritoCopia; // Actualiza el carrito local
+        this.$emit("update-carrito", carritoCopia); // Emitir evento para actualizar el carrito en el componente padre
+      }
     },
     close() {
       this.showSection = false;
     },
+    sumarCantidad(index) {
+      const carritoCopia = [...this.carritoLocal];
+      carritoCopia[index].cantidad++;
+      this.carritoLocal = carritoCopia;
+      this.$emit("update-carrito", carritoCopia);
+    },
+    restarCantidad(index) {
+      const carritoCopia = [...this.carritoLocal];
+      if (carritoCopia[index].cantidad > 1) {
+        carritoCopia[index].cantidad--;
+        this.carritoLocal = carritoCopia;
+        this.$emit("update-carrito", carritoCopia);
+      }
+    },
+    calcularTotalCarrito() {
+      return this.carrito.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
+    },
     comprar() {
-      console.log("comprar");
+      // Verificar el stock antes de realizar la compra
+      const sinStock = this.carrito.some(producto => producto.cantidad > producto.stock);
+      if (sinStock) {
+        Swal.fire({
+          icon: 'error',
+          title: 'No hay suficiente stock',
+          text: 'Por favor, revisa la cantidad de productos en tu carrito',
+          timer: 2000,
+          width: 300,
+        });
+        return;
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Gracias por su compra!',
+        text: 'Compra realizada con éxito',
+        showConfirmButton: false,
+        timer: 800,
+        width: 300,
+      });
+      localStorage.setItem("carrito", JSON.stringify(this.carrito));
+      console.log('carrito', this.carrito)
+      // Limpiar el carrito después de la compra
+      this.carritoLocal = [];
+      this.$emit("update-carrito", this.carritoLocal);
     },
   },
 };
 </script>
 
 <style scoped>
-.img-carrito {
-  width: 50px;
-  height: 50px;
+.header-carrito {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ccc;
 }
 
 .btn-cerrar {
   background-color: transparent;
   border: none;
+  outline: none;
   cursor: pointer;
 }
 
-.header-carrito {
+.table {
+  margin-top: 10px;
+}
+
+.img-carrito {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.cantidad {
+  margin: 0 5px;
+}
+
+.total-carrito {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.carrito-icono {
+  position: absolute;
+  top: -10px;
+  right: -10px;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  height: 90px;
+  width: 20px;
+  height: 20px;
+  background-color: #dc3545;
+  color: #fff;
+  font-size: 12px;
+  border-radius: 50%;
 }
 </style>
