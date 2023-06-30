@@ -1,10 +1,12 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-// Import our custom CSS
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';
+
 import './scss/styles.scss'
-/* import font awesome icon component */
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-createApp(App)
-.component('font-awesome-icon', FontAwesomeIcon)
-.mount('#app')
+const app = createApp(App);
+app.use(router);
+app.component('font-awesome-icon', FontAwesomeIcon);
+
+app.mount('#app');

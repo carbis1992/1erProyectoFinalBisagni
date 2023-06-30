@@ -1,20 +1,16 @@
 <template>
-    <registroUsuario />
-    <!-- <loginUsuario /> -->
-    <!-- <listadoProductos /> -->
+    <HeaderBar />
+    <router-view />
+
 </template>
 
 <script>
-import registroUsuario from './components/registroUsuario.vue'
-// import loginUsuario from './components/loginUsuario.vue'
-// import listadoProductos from './components/listadoProductos.vue'
+import HeaderBar from './components/HeaderBar.vue'
 
 export default {
   name: 'App',
   components: {
-    registroUsuario,
-    // loginUsuario,
-    // listadoProductos,
+    HeaderBar
   }
 }
 </script>
@@ -26,5 +22,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin-right: 30px;
+  margin-left: 30px;
 }
 </style>
