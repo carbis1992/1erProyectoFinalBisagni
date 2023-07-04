@@ -7,6 +7,7 @@ import carrito from './views/carritoComponent.vue';
 import detalleProducto from './views/detalleProducto.vue';
 import comprasCarrito from './views/comprasCarrito.vue';
 import listadoProductosAdmin from './views/listadoProductosAdmin.vue';
+import editarProducto from './views/editarProducto.vue';
 
 const routes = [
   { path: "/", component: listadoProductos, name: "listadoProductos" },
@@ -16,6 +17,7 @@ const routes = [
   { path: "/detalle/:id", component: detalleProducto, name: "detalleProducto" },
   { path: "/compras", component: comprasCarrito, name: "comprasCarrito" },
   { path: "/admin", component: listadoProductosAdmin, name: "listadoProductosAdmin" },
+  { path: "/editar/:id", component: editarProducto, name: "editarProducto" },
 ];
 
 const router = createRouter({

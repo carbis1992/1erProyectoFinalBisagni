@@ -1,16 +1,27 @@
 <template>
-    <HeaderBar />
-    <router-view />
-
+  <HeaderBar :isAdmin="esAdmin" />
+  <router-view />
 </template>
 
 <script>
 import HeaderBar from './components/HeaderBar.vue'
+import mitt from 'mitt';
 
 export default {
   name: 'App',
   components: {
     HeaderBar
+  },
+  data() {
+    return {
+      esAdmin: false,
+      emitter: mitt(),
+    };
+  },
+  mounted() {
+    this.emitter.on("isAdmin", (isAdmin) => {
+      this.esAdmin = isAdmin;
+    });
   }
 }
 </script>

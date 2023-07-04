@@ -7,9 +7,6 @@
             <p class="card-text">{{ producto.descripcion }}</p>
             <p>Stock: {{ producto.stock }}</p>
             <button class="btn btn-light btn-card">
-                Agregar al carrito
-            </button>
-            <button class="btn btn-light btn-card">
                 <router-link :to="{ name: 'listadoProductos' }">
                     Volver
                 </router-link>
@@ -22,61 +19,63 @@
 </template>
 
 <script>
-export default{
+export default {
     name: 'detalleProducto',
-    data(){
-        return{
+    data() {
+        return {
             producto: null,
             id: this.$route.params.id,
         }
     },
-    created(){
-        this.getDettaleProducto();
+    created() {
+        this.getDetalleProducto();
     },
     methods: {
-        // const id = this.$route.params.id;
-        // const producto = this.$route.params.producto;
-        getDettaleProducto(){
+        getDetalleProducto() {
             fetch(`https://649e051f9bac4a8e669e87a4.mockapi.io/products/${this.id}`)
-            .then(response => response.json())
-            .then(data => {
-                this.producto = data;
-            })
+                .then(response => response.json())
+                .then(data => {
+                    this.producto = data;
+                });
         }
     }
 }
 </script>
 
+
 <style lang="scss" scoped>
-    a{
-        text-decoration: none;
-        color: black;
-    }
-    .btn-card{
-        border: 1px solid darkseagreen;
-        background: none;
-        font-size: 11px;
-        margin-right: 10px;
-        &:hover{
-            background-color: rgb(181, 181, 181);
-        }
-    }
+a {
+    text-decoration: none;
+    color: black;
+}
 
-    .card{
-        width: 50%;
-        margin-left: 25%;
-    }
-    .card-title{
-        margin-top: 10px;
-        font-size: 15px;
-        font-weight: bold;
-    }
+.btn-card {
+    border: 1px solid darkseagreen;
+    background: none;
+    font-size: 11px;
+    margin-right: 10px;
 
-    .card-text{
-        width: 70%;
-        margin-left: 85px;
+    &:hover {
+        background-color: rgb(181, 181, 181);
     }
-    .card-img-top{
-        width: 200px;
-    }
-</style>
+}
+
+.card {
+    width: 50%;
+    margin-left: 25%;
+}
+
+.card-title {
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.card-text {
+    width: 70%;
+    margin-left: 85px;
+}
+
+.card-img-top {
+    width: 200px;
+}</style>
