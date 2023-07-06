@@ -6,6 +6,7 @@
             <h6>Detalle:</h6>
             <p class="card-text">{{ producto.descripcion }}</p>
             <p>Stock: {{ producto.stock }}</p>
+            <button class="btn btn-light btn-card" @click="agregarProductoAlCarrito">Agregar al carrito</button>
             <button class="btn btn-light btn-card">
                 <router-link :to="{ name: 'listadoProductos' }">
                     Volver
@@ -19,8 +20,10 @@
 </template>
 
 <script>
+import carritoMixin from '../mixins';
 export default {
     name: 'detalleProducto',
+    mixins: [carritoMixin],
     data() {
         return {
             producto: null,
@@ -37,11 +40,15 @@ export default {
                 .then(data => {
                     this.producto = data;
                 });
-        }
+        },
+        agregarProductoAlCarrito() {
+            if (this.producto) {
+                this.agregarAlCarrito(this.producto);
+            }
+        },
     }
 }
 </script>
-
 
 <style lang="scss" scoped>
 a {
@@ -78,4 +85,5 @@ a {
 
 .card-img-top {
     width: 200px;
-}</style>
+}
+</style>

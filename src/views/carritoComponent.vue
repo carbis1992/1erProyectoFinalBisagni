@@ -23,7 +23,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(producto, index) in carrito" :key="producto.id">
+        <tr v-for="(producto, index) in carritoLocal" :key="producto.id">
           <td>
             <img :src="producto.imagen" class="card-img-top img-carrito" :alt="producto.nombre" />
           </td>
@@ -57,60 +57,64 @@
 
 <script>
 import Swal from 'sweetalert2';
+import removeFromCartMixin from '../mixins';
+import carritoMixin from '../mixins';
+
 export default {
   name: "carritoCompras",
+  mixins: [removeFromCartMixin, carritoMixin],
+
   props: {
-    carrito: {
+    carritoProp: {
       type: Array,
       default: () => [],
-    },
+    }
   },
   data() {
     return {
       showSection: true,
-      carritoLocal: [],
+      carritoLocal: [], // Inicializa el carrito local como un array vacío
     };
-  },
-  created() {
-    this.carritoLocal = [...this.carrito]; // Copia los productos al carrito local
   },
   computed: {
     cantidadProductos() {
-      return this.carrito.reduce((total, producto) => total + producto.cantidad, 0);
+      return this.carritoLocal.reduce((total, producto) => total + producto.cantidad, 0);
     },
   },
+  created() {
+    const carritoLocalStorage = localStorage.getItem("carrito");
+    if (carritoLocalStorage) {
+      this.carritoLocal = JSON.parse(carritoLocalStorage);
+    } else {
+      this.carritoLocal = [...this.carritoProp];
+    }
+    console.log("carritoLocal", this.carritoLocal);
+  },
   methods: {
-    removeFromCart(producto) {
-      const carritoCopia = [...this.carritoLocal];
-      const index = carritoCopia.findIndex((item) => item.id === producto.id);
-      if (index !== -1) {
-        carritoCopia.splice(index, 1);
-        this.carritoLocal = carritoCopia; // Actualiza el carrito local
-        this.$emit("update-carrito", carritoCopia); // Emitir evento para actualizar el carrito en el componente padre
-      }
-    },
     close() {
-      this.showSection = false;
+      this.$router.push({ name: 'listadoProductos' });
+    },
+    removeFromCart(producto) {
+      this.removeFromCartMixin(producto);
+      this.$emit("update-carrito", this.carritoProp); // Emitir evento para actualizar el carrito en el componente padre
     },
     sumarCantidad(index) {
-      const carritoCopia = [...this.carritoLocal];
-      carritoCopia[index].cantidad++;
-      this.carritoLocal = carritoCopia;
-      this.$emit("update-carrito", carritoCopia);
+      this.carritoLocal[index].cantidad++;
     },
     restarCantidad(index) {
-      const carritoCopia = [...this.carritoLocal];
-      if (carritoCopia[index].cantidad > 1) {
-        carritoCopia[index].cantidad--;
-        this.carritoLocal = carritoCopia;
-        this.$emit("update-carrito", carritoCopia);
+      if (this.carritoLocal[index].cantidad > 1) {
+        this.carritoLocal[index].cantidad--;
       }
     },
     calcularTotalCarrito() {
-      return this.carrito.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
+      return this.carritoLocal.reduce((total, producto) => total + producto.precio * producto.cantidad, 0);
+    },
+    limpiarCarrito() {
+      this.carritoLocal = [];
+      localStorage.removeItem("carrito");
     },
     comprar() {
-      const sinStock = this.carrito.some(producto => producto.cantidad > producto.stock);
+      const sinStock = this.carritoProp.some(producto => producto.cantidad > producto.stock);
       if (sinStock) {
         Swal.fire({
           icon: 'error',
@@ -122,9 +126,8 @@ export default {
         return;
       }
 
-
       const compra = {
-        productos: this.carrito.map(producto => ({
+        productos: this.carritoProp.map(producto => ({
           id: producto.id,
           nombre: producto.nombre,
           descripcion: producto.descripcion,
@@ -134,6 +137,7 @@ export default {
           cantidad: producto.cantidad,
         })),
       };
+
       const carritoCopia = [...this.carritoLocal];
 
       carritoCopia.forEach(producto => {
@@ -141,9 +145,8 @@ export default {
         producto.cantidad = 1;
       });
 
-      this.carritoLocal = carritoCopia;
       this.$emit("update-carrito", carritoCopia);
-      localStorage.setItem("carrito", JSON.stringify(this.carrito));
+      localStorage.setItem("carrito", JSON.stringify(carritoCopia));
       fetch('https://64a48afac3b509573b57a233.mockapi.io/compras', {
         method: 'POST',
         headers: {
@@ -165,6 +168,9 @@ export default {
         timer: 800,
         width: 300,
       })
+
+      this.$router.push({ name: 'listadoProductos' });
+      this.limpiarCarrito();
     },
   },
 };

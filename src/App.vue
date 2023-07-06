@@ -1,6 +1,6 @@
 <template>
   <HeaderBar :isAdmin="esAdmin" />
-  <router-view />
+  <router-view :carritoProp="carrito" />
 </template>
 
 <script>
@@ -16,13 +16,17 @@ export default {
     return {
       esAdmin: false,
       emitter: mitt(),
+      carrito: [],
     };
   },
   mounted() {
     this.emitter.on("isAdmin", (isAdmin) => {
       this.esAdmin = isAdmin;
     });
-  }
+    this.emitter.on('actualizarCarrito', (carrito) => {
+      this.carrito = carrito;
+    });
+  },
 }
 </script>
 
